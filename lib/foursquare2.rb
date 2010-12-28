@@ -36,12 +36,11 @@ module Foursquare2
         self.client.web_server.authorize_url(:redirect_uri => @callback_uri, :response_type => "code")
     end
 
-    # Gets the access token. Pass in the code that authorize_url returned..
+    # Gets the access token. Pass in the code that authorize_url returned. To get the token,
+    # use something like oauth.access_token.token.
     def access_token(code = nil)
       return @access_token if @access_token
-      token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
-      @access_token = token.token if token
-      return @access_token
+      @access_token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
     end
 
     # Clears the access token if you need it to be cleared.
@@ -51,8 +50,7 @@ module Foursquare2
   end
   
   class Base
-    BASE_URL = 'http://api.foursquare.com/v1'
-    FORMAT = 'json'
+    BASE_URL = 'http://api.foursquare.com/v2'
     
     attr_accessor :oauth
     
@@ -99,7 +97,6 @@ module Foursquare2
       params = options.is_a?(Hash) ? to_query_params(options) : options
       params = nil if params and params.blank?
       url = BASE_URL + '/' + method_name.split('.').join('/')
-      url += ".#{FORMAT}"
       url += "?#{params}" if params
       url = URI.escape(url)
       url
@@ -120,72 +117,6 @@ module Foursquare2
     
     def post(url, body)
       parse_response(@oauth.access_token.post(url, body))
-    end
-    
-    # API method wrappers
-    
-    def checkin(params = {})
-      api(:checkin=, params).checkin
-    end
-    
-    def history(params = {})
-      api(:history, params).checkins
-    end
-    
-    def addvenue(params = {})
-      api(:addvenue=, params).venue
-    end
-    
-    def venue_proposeedit(params = {})
-      api(:venue_proposeedit=, params)
-    end
-    
-    def venue_flagclosed(params = {})
-      api(:venue_flagclosed=, params)
-    end
-    
-    def addtip(params = {})
-      api(:addtip=, params).tip
-    end
-    
-    def tip_marktodo(params = {})
-      api(:tip_marktodo=, params).tip
-    end
-    
-    def tip_markdone(params = {})
-      api(:tip_markdone=, params).tip
-    end
-    
-    def friend_requests
-      api(:friend_requests).requests
-    end
-    
-    def friend_approve(params = {})
-      api(:friend_approve=, params).user
-    end
-    
-    def friend_deny(params = {})
-      api(:friend_deny=, params).user
-    end
-
-    def friend_sendrequest(params = {})
-      api(:friend_sendrequest=, params).user
-    end
-    
-    def findfriends_byname(params = {})
-      api(:findfriends_byname, params).users
-    end
-    
-    def findfriends_byphone(params = {})
-      api(:findfriends_byphone, params).users
-    end
-    
-    def findfriends_bytwitter(params = {})
-      api(:findfriends_bytwitter, params).users
-    end
-    
-    def settings_setpings(params = {})
-      api(:settings_setpings=, params).settings
     end
     
     private
