@@ -38,15 +38,15 @@ module Foursquare2
 
     # Gets the access token. Pass in the code that authorize_url returned..
     def access_token(code = nil)
-        return @access_token if @access_token
-        token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
-	@access_token = token.token if token
-	return @access_token
+      return @access_token if @access_token
+      token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
+      @access_token = token.token if token
+      return @access_token
     end
 
     # Clears the access token if you need it to be cleared.
     def clear_access_token!
-        @access_token = nil
+      @access_token = nil
     end
   end
   
