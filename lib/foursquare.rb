@@ -1,58 +1,48 @@
 require 'rubygems'
 require 'httparty'
 require 'hashie'
-require 'oauth'
+require 'oauth2'
 
 Hash.send :include, Hashie::HashExtensions
 
 
 
-module Foursquare
+module Foursquare2
   class OAuth
-    def initialize(ctoken, csecret, options={})
-      @consumer_token, @consumer_secret = ctoken, csecret
+    # Usage:
+    #   
+    #   Foursquare2::OAuth.new("YOUR_APP_ID", "YOUR_APP_SECRET", "YOUR_REGISTERED_APP_REDIRECT")
+    def initialize(cid, csecret, redirect_uri)
+      @client_id, @client_secret, @callback_uri = cid, csecret, redirect_uri
     end
-  
-    def consumer
-      return @consumer if @consumer
-      @consumer = ::OAuth::Consumer.new(@consumer_token, @consumer_secret, {
+
+    # Initializes the client or returns the existing
+    # one.
+    def client
+      return @client if @client
+      @client = ::OAuth2::Client.new(@client_id, @client_secret, {
         :site               => "http://foursquare.com",
-        :scheme             => :header,
-        :http_method        => :post,
-        :request_token_path => "/oauth/request_token",
-        :access_token_path  => "/oauth/access_token",
-        :authorize_path     => "/oauth/authorize",
-        :proxy              => (ENV['HTTP_PROXY'] || ENV['http_proxy'])
+        :access_token_path  => "/oauth2/access_token",
+        :authorize_path     => "/oauth2/authorize"
       })
     end
-  
-    def set_callback_url(url)
-      clear_request_token
-      request_token(:oauth_callback => url)
+
+    # Returns the authorize URL to redirect to.
+    def authorize_url
+    	# FIXME: Raise an error if @callback_uri isn't set.
+	
+        self.client.web_server.authorize_url(:redirect_uri => @callback_uri, :response_type => "code")
     end
-    
-    def request_token(options={})
-      @request_token ||= consumer.get_request_token(options)
+
+    # Gets the access token. Pass in the code that authorize_url returned..
+    def access_token(code = nil)
+        return @access_token if @access_token
+	@access_token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
     end
-  
-    def authorize_from_request(request_token, request_secret, verifier)
-      request_token = ::OAuth::RequestToken.new(consumer, request_token, request_secret)
-      access_token = request_token.get_access_token(:oauth_verifier => verifier)
-      @atoken, @asecret = access_token.token, access_token.secret
-    end
-  
-    def access_token
-      @access_token ||= ::OAuth::AccessToken.new(consumer, @atoken, @asecret)
-    end
-  
-    def authorize_from_access(atoken, asecret)
-      @atoken, @asecret = atoken, asecret
-    end
-    
-    private
-    
-    def clear_request_token
-      @request_token = nil
+
+    # Clears the access token if you need it to be cleared.
+    def clear_access_token!
+        @access_token = nil
     end
   end
   
