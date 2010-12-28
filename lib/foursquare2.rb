@@ -14,6 +14,8 @@ module Foursquare2
     #   Foursquare2::OAuth.new("YOUR_APP_ID", "YOUR_APP_SECRET", "YOUR_REGISTERED_APP_REDIRECT")
     def initialize(cid, csecret, redirect_uri)
       @client_id, @client_secret, @callback_uri = cid, csecret, redirect_uri
+      @client = nil
+      @access_token = nil
     end
 
     # Initializes the client or returns the existing
@@ -37,7 +39,9 @@ module Foursquare2
     # Gets the access token. Pass in the code that authorize_url returned..
     def access_token(code = nil)
         return @access_token if @access_token
-        @access_token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
+        token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
+	@access_token = token.token if token
+	return @access_token
     end
 
     # Clears the access token if you need it to be cleared.
