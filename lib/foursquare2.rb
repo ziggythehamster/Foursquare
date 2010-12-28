@@ -8,7 +8,7 @@ Hash.send :include, Hashie::HashExtensions
 
 
 module Foursquare2
-  class OAuth
+  class OAuth2
     # Usage:
     #   
     #   Foursquare2::OAuth.new("YOUR_APP_ID", "YOUR_APP_SECRET", "YOUR_REGISTERED_APP_REDIRECT")
@@ -21,7 +21,7 @@ module Foursquare2
     def client
       return @client if @client
       @client = ::OAuth2::Client.new(@client_id, @client_secret, {
-        :site               => "http://foursquare.com",
+        :site               => "https://foursquare.com",
         :access_token_path  => "/oauth2/access_token",
         :authorize_path     => "/oauth2/authorize"
       })
@@ -37,7 +37,7 @@ module Foursquare2
     # Gets the access token. Pass in the code that authorize_url returned..
     def access_token(code = nil)
         return @access_token if @access_token
-	@access_token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
+        @access_token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
     end
 
     # Clears the access token if you need it to be cleared.
