@@ -56,31 +56,23 @@ module Foursquare2
       @oauth = oauth
     end
     
+    # Methods get used like this:
+    #   .checkins_add!(:venueId => 1, :shout => "Checking in!")
+    #   .users_badges(:id => 12345)
+    #   .venues_herenow(:id => 1)
     #
-    # Foursquare API: http://groups.google.com/group/foursquare-api/web/api-documentation
+    # Basically, take the endpoint name like checkins/add and replace / with _.
+    # If you need to pass in an ID (as in venues/ID/herenow), use the :id parameter.
     #
-    # .test                                          # api test method
-    #  => {'response': 'ok'}
-    # .checkin = {:shout => 'At home. Writing code'} # post new check in
-    #  => {...checkin hash...}
-    # .history                                       # authenticated user's checkin history
-    # => [{...checkin hashie...}, {...another checkin hashie...}]
-    # .send('venue.flagclosed=', {:vid => 12345})     # flag venue 12345 as closed
-    # => {'response': 'ok'}
-    # .venue_flagclosed = {:vid => 12345}
-    # => {'response': 'ok'}
-    #
-    # Assignment methods(POSTs) always return a hash. Annoyingly Ruby always returns what's on
-    # the right side of the assignment operator. So there are some wrapper methods below
-    # for POSTs that make sure it gets turned into a hashie
-    #
+    # POSTs end in ! - this is to indicate that the function makes changes
     def method_missing(method_symbol, params = {})
       method_name = method_symbol.to_s.split(/\.|_/).join('/')
+      id = params.delete(:id)
       
-      if (method_name[-1,1]) == '='
+      if (method_name[-1,1]) == '!'
         method = method_name[0..-2]
-        result = post(api_url(method), params)
-        params.replace(result[method] || result)
+        result = post(api_url(method, nil, id), params)
+        result[method] || result
       else
         result = get(api_url(method_name, params))
         result[method_name] || result
@@ -91,10 +83,16 @@ module Foursquare2
       Hashie::Mash.new(method_missing(method_symbol, params))
     end
     
-    def api_url(method_name, options = nil)
+    def api_url(method_name, options = nil, id = nil)
       params = options.is_a?(Hash) ? to_query_params(options) : options
       params = nil if params and params.blank?
-      url = BASE_URL + '/' + method_name.split('.').join('/')
+
+      method_arr = method_name.split("/")
+
+      # Add the ID to the method array if an ID was passed in.
+      method_arr.insert(1, id) if id
+
+      url = BASE_URL + '/' + method_arr.join('/')
       url += "?#{params}" if params
       url = URI.escape(url)
       url
@@ -129,9 +127,11 @@ module Foursquare2
         when 401
           raise Unauthorized, message
         when 403
-          raise General, message
+          raise Forbidden, message
         when 404
           raise NotFound, message
+	when 405
+	  raise NotAllowed, message
         when 500
           raise InternalError, "Foursquare had an internal error. Please let them know in the group.\n#{message}"
         when 502..503
@@ -141,10 +141,11 @@ module Foursquare2
   end
   
   
-  class BadRequest < StandardError; end
+  class BadRequest        < StandardError; end
   class Unauthorized      < StandardError; end
-  class General           < StandardError; end
+  class Forbidden         < StandardError; end
   class Unavailable       < StandardError; end
   class InternalError     < StandardError; end
   class NotFound          < StandardError; end
+  class NotAllowed        < StandardError; end
 end
