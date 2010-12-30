@@ -108,8 +108,8 @@ module Foursquare2
     end
     
     def parse_response(response)
-      raise_errors(response)
-      Crack::JSON.parse(response.body)
+      raise_errors(response.response)
+      Crack::JSON.parse(response)
     end
     
     def to_query_params(options)
@@ -149,9 +149,9 @@ module Foursquare2
     
     
     def raise_errors(response)
-      message = "(#{response.code}): #{response.message} - #{response.inspect} - #{response.body}"
+      message = "(#{response.status}): #{response.inspect} - #{response.body}"
       
-      case response.code.to_i
+      case response.status.to_i
         when 400
           raise BadRequest, message
         when 401
