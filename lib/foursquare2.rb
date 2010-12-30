@@ -129,11 +129,19 @@ module Foursquare2
 
         puts "[4sq2] GET #{url}" if $DEBUG
 
-        parse_response(@oauth.client.request(:get, url))
+        begin
+          parse_response(@oauth.client.request(:get, url))
+        rescue ::OAuth2::HTTPError => e
+          parse_response(::OAuth2::ResponseString.new(e.response))
+        end
       else
         puts "[4sq2] GET #{url}" if $DEBUG
 
-        parse_response(@oauth.access_token.get(url))
+        begin
+          parse_response(@oauth.access_token.get(url))
+        rescue ::OAuth2::HTTPError => e
+          parse_response(::OAuth2::ResponseString.new(e.response))
+        end
       end
     end
     
