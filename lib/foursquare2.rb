@@ -7,6 +7,8 @@ Hash.send :include, Hashie::HashExtensions
 
 module Foursquare2
   class OAuth2
+    attr_reader :client_id, :client_secret
+
     # Usage:
     #   
     #   Foursquare2::OAuth.new("YOUR_APP_ID", "YOUR_APP_SECRET", "YOUR_REGISTERED_APP_REDIRECT")
@@ -115,11 +117,20 @@ module Foursquare2
     end
     
     def get(url)
-      puts "[4sq2] GET #{url}" if $DEBUG
-
       if @oauth.access_token.nil?
+        # Add our client ID and client secret to this request since we don't have an active token.
+        if url.split("?").length == 1
+          url << "?client_id=#{@oauth.client_id}&client_secret=#{@oauth.client_secret}"
+        elsif url.split("?").length == 2
+          url << "&client_id=#{@oauth.client_id}&client_secret=#{@oauth.client_secret}"
+        end
+
+        puts "[4sq2] GET #{url}" if $DEBUG
+
         parse_response(@oauth.client.request(:get, url))
       else
+        puts "[4sq2] GET #{url}" if $DEBUG
+
         parse_response(@oauth.access_token.get(url))
       end
     end
