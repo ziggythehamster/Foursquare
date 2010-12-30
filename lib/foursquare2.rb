@@ -55,7 +55,7 @@ module Foursquare2
   end
   
   class Base
-    BASE_URL = 'http://api.foursquare.com/v2'
+    BASE_URL = 'https://api.foursquare.com/v2'
     
     attr_accessor :oauth
     
