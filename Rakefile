@@ -6,12 +6,12 @@ require 'spec/rake/spectask'
 
 spec = Gem::Specification.new do |s|
   s.name = "foursquare"
-  s.version = "0.3.4"
-  s.authors = ['Jeremy Welch', 'Thomas Hanley', 'Elise Wood']
+  s.version = "0.3.4.1"
+  s.authors = ['Jeremy Welch', 'Thomas Hanley', 'Elise Wood', 'Keith Gable']
   s.email = "hello@jeremyrwelch.com"
   s.homepage = "http://foursquare.rubyforge.org"
   s.description = s.summary = "A simple Ruby wrapper for the Foursquare API"
-  s.post_install_message = "NOTE: This version of the Foursquare Gem has added OAuth support. Basic Auth has been deprecated. Also significant changes have bee made to the way methods are called. Please review the examples in the README."
+  s.post_install_message = "NOTE: This fork of the Foursquare gem supports the v1 and v2 APIs. Documentation may not be updated to show this however."
   
   s.platform = Gem::Platform::RUBY
   s.has_rdoc = true
