@@ -42,9 +42,15 @@ module Foursquare2
       @access_token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
     end
 
-    # Clears the access token if you need it to be cleared.
-    def clear_access_token!
-      @access_token = nil
+    # Sets the access token. Use this when you have a stored access token, then use
+    # access_token to get the access token object. This method expects a String or
+    # nil.
+    def access_token=(new_access_token = nil)
+      if new_access_token.nil?
+        @access_token = nil
+      else
+        @access_token = ::OAuth2::AccessToken.new(self, new_access_token)
+      end
     end
   end
   
