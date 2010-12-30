@@ -38,6 +38,7 @@ module Foursquare2
     # use something like oauth.access_token.token.
     def access_token(code = nil)
       return @access_token if @access_token
+      return nil if code.nil?
       @access_token = self.client.web_server.get_access_token(code, :redirect_uri => @callback_uri, :grant_type => "authorization_code")
     end
 
