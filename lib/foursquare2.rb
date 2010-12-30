@@ -5,8 +5,6 @@ require 'oauth2'
 
 Hash.send :include, Hashie::HashExtensions
 
-
-
 module Foursquare2
   class OAuth2
     # Usage:
@@ -31,9 +29,9 @@ module Foursquare2
 
     # Returns the authorize URL to redirect to.
     def authorize_url
-    	# FIXME: Raise an error if @callback_uri isn't set.
+      # FIXME: Raise an error if @callback_uri isn't set.
 	
-        self.client.web_server.authorize_url(:redirect_uri => @callback_uri, :response_type => "code")
+      self.client.web_server.authorize_url(:redirect_uri => @callback_uri, :response_type => "code")
     end
 
     # Gets the access token. Pass in the code that authorize_url returned. To get the token,
