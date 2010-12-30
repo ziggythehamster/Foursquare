@@ -115,11 +115,23 @@ module Foursquare2
     end
     
     def get(url)
-      parse_response(@oauth.access_token.get(url))
+      puts "[4sq2] GET #{url}" if $DEBUG
+
+      if @oauth.access_token.nil?
+        parse_response(@oauth.client.request(:get, url))
+      else
+        parse_response(@oauth.access_token.get(url))
+      end
     end
     
     def post(url, body)
-      parse_response(@oauth.access_token.post(url, body))
+      puts "[4sq2] POST #{url} - #{body}" if $DEBUG
+
+      if @oauth.access_token.nil?
+        parse_response(@oauth.client.request(:post, url, body))
+      else
+        parse_response(@oauth.access_token.post(url, body))
+      end
     end
     
     private
