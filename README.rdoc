@@ -1,12 +1,40 @@
 == foursquare
 
-A simple Ruby Gem wrapper for the Foursquare API. With OAuth authentication.
+A simple Ruby Gem wrapper for the v1 and v2 Foursquare API. With OAuth authentication.
 
 == install
   
-  gem install foursquare
-    
-== example
+  This would be gem install foursquare but since this is a fork I don't know the most
+  appropriate way.
+
+== v2 example
+
+  require 'rubygems'
+  require 'foursquare2'
+
+  oauth_key = 'your_key'
+  oauth_secret = 'your_secret'
+  oauth_redirect_url = 'http://testing.yoursite.com/'
+
+  oauth = Foursquare2::OAuth2.new(oauth_key, oauth_secret, oauth_redirect_url)
+
+  # Get the URL to redirect clients to to authorize your application.
+  authorize_url = oauth.authorize_url
+
+  # Get the access token object from OAuth2 for the code returned to your app.
+  # The actual token string is accessible by using something like access_token.token
+  # or oauth.access_token(params[:code]).token.
+  access_token = oauth.access_token(params[:code])
+
+  # Use a stored access token
+  oauth.access_token = 'stored_access_token_string'
+
+  # Actually do API calls.
+  foursquare = Foursquare2::Base.new(oauth)
+  foursquare.venues_search(:ll => "30.218978,-97.75523", :query => "McDonald's", :limit => 10)
+  foursquare.venues_categories
+
+== v1 example
   
   require 'rubygems'
   require 'foursquare'
