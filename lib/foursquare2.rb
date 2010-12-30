@@ -108,8 +108,10 @@ module Foursquare2
     end
     
     def parse_response(response)
-      raise_errors(response.response)
-      Crack::JSON.parse(response)
+      parsed_resp = Crack::JSON.parse(response)
+      raise_errors(response.response, parsed_resp["meta"].nil? ? nil : parsed_resp["meta"])
+
+      return parsed_resp["response"].nil? ? parsed_resp : parsed_resp["response"]
     end
     
     def to_query_params(options)
@@ -148,8 +150,12 @@ module Foursquare2
     private
     
     
-    def raise_errors(response)
-      message = "(#{response.status}): #{response.inspect} - #{response.body}"
+    def raise_errors(response, meta = nil)
+      if meta
+        message = "(#{response.status}): #{meta["errorType"]} #{meta["errorDetail"]} - #{response.body}"
+      else
+        message = "(#{response.status}): #{response.inspect} - #{response.body}"
+      end
       
       case response.status.to_i
         when 400
