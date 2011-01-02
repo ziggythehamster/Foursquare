@@ -83,7 +83,7 @@ module Foursquare2
         result = post(api_url(method, nil, id), params)
         result[method] || result
       else
-        result = get(api_url(method_name, params))
+        result = get(api_url(method_name, params, id))
         result[method_name] || result
       end
     end
