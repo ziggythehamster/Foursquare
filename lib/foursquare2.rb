@@ -27,6 +27,7 @@ module Foursquare2
         :access_token_path  => "/oauth2/access_token",
         :authorize_path     => "/oauth2/authorize"
       })
+      return @client
     end
 
     # Returns the authorize URL to redirect to.
