@@ -53,6 +53,7 @@ module Foursquare2
         @access_token = nil
       else
         @access_token = ::OAuth2::AccessToken.new(self.client, new_access_token)
+        @access_token.token_param = "oauth_token"
       end
     end
   end
